@@ -75,6 +75,41 @@ try {
       }
     }
   }
+
+  if (env.BRANCH_NAME == 'delete') {
+
+    // Run terraform apply
+    stage('delete') {
+      node {
+        withCredentials([[
+          $class: 'AmazonWebServicesCredentialsBinding',
+          credentialsId: credentialsId,
+          accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+          secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+          ansiColor('xterm') {
+            sh 'terraform destroy -auto-approve'
+          }
+        }
+      }
+    }
+
+    // Run terraform show
+    stage('show') {
+      node {
+        withCredentials([[
+          $class: 'AmazonWebServicesCredentialsBinding',
+          credentialsId: credentialsId,
+          accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+          secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+          ansiColor('xterm') {
+            sh 'terraform show'
+          }
+        }
+      }
+    }
+  }
   currentBuild.result = 'SUCCESS'
 }
 catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException flowError) {
